@@ -66,6 +66,21 @@ button:hover {
   background: #334155;
 }
 
+#contactLink {
+  display: inline-block;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  text-decoration: none;
+}
+
+#contactLink:hover {
+  background: #1d4ed8;
+}
+
 #message {
   margin-top: 1rem;
   color: #334155;
@@ -139,6 +154,53 @@ button:hover {
   min-width: 3rem;
   padding: 0.6rem 0.9rem;
   touch-action: none;
+}
+
+#emailSection {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #cbd5e1;
+}
+
+#emailSection h2 {
+  color: #1d4ed8;
+}
+
+#emailForm label {
+  display: block;
+  margin: 1rem 0 0.5rem;
+  color: #334155;
+  font-weight: bold;
+}
+
+#emailForm button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.email-form-controls {
+  display: flex;
+}
+
+.email-form-controls input,
+#feedbackInput {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid #94a3b8;
+  border-radius: 10px;
+  font: inherit;
+}
+
+#feedbackInput {
+  display: block;
+  margin-bottom: 1rem;
+  resize: vertical;
+}
+
+#emailStatus {
+  color: #334155;
 }
 
 .mine-cell {

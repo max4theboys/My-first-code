@@ -22,6 +22,10 @@ const pacmanBoard = document.getElementById("pacmanBoard");
 const pacmanContext = pacmanBoard.getContext("2d");
 const pacmanStatus = document.getElementById("pacmanStatus");
 const pacmanRestartButton = document.getElementById("pacmanRestartButton");
+const emailForm = document.getElementById("emailForm");
+const emailInput = document.getElementById("emailInput");
+const feedbackInput = document.getElementById("feedbackInput");
+const emailStatus = document.getElementById("emailStatus");
 
 const tileSize = 20;
 const tileCount = board.width / tileSize;
@@ -46,8 +50,7 @@ let climbBarrels;
 let climbBarrelTimer;
 let climbLives;
 let climbFinished = false;
-let climbJumpRequested = false;
-const climbKeys = { left: false, right: false, jump: false };
+const climbKeys = { left: false, right: false, up: false };
 let pacmanTimer;
 let pacman;
 let pacmanDirection;
@@ -75,6 +78,13 @@ const climbPlatforms = [
   { x: 0, y: 135, width: 265 },
   { x: 135, y: 70, width: 265 },
 ];
+const climbLadders = climbPlatforms.slice(0, -1).map((platform, index) => ({
+  x: 188,
+  width: 24,
+  top: climbPlatforms[index + 1].y,
+  bottom: platform.y,
+  bottomPlatformIndex: index,
+}));
 
 function showGame(game) {
   clearInterval(gameTimer);
@@ -118,8 +128,7 @@ function returnToMenu() {
   climbFrame = undefined;
   climbKeys.left = false;
   climbKeys.right = false;
-  climbKeys.jump = false;
-  climbJumpRequested = false;
+  climbKeys.up = false;
   snakeGame.hidden = true;
   minesweeperGame.hidden = true;
   climbGame.hidden = true;
@@ -258,10 +267,9 @@ function startClimbGame() {
   climbBarrelTimer = 0;
   climbKeys.left = false;
   climbKeys.right = false;
-  climbKeys.jump = false;
-  climbJumpRequested = false;
+  climbKeys.up = false;
   climbRestartButton.hidden = true;
-  climbStatus.textContent = `Lives: ${climbLives}. Move with the arrow keys or WASD; Space or Up to jump.`;
+  climbStatus.textContent = `Lives: ${climbLives}. Use Left/Right or A/D to move; Up or W climbs a ladder.`;
   climbFrame = requestAnimationFrame(runClimbFrame);
 }
 
@@ -283,30 +291,43 @@ function updateClimbGame(delta) {
   player.vx = (Number(climbKeys.right) - Number(climbKeys.left)) * 190;
   player.x = Math.max(0, Math.min(climbBoard.width - player.width, player.x + player.vx * delta));
 
-  if (climbJumpRequested && player.onGround) {
-    player.vy = -480;
-    player.onGround = false;
-    climbJumpRequested = false;
-  }
-
   const previousBottom = player.y + player.height;
-  player.vy += 1250 * delta;
-  player.y += player.vy * delta;
-  player.onGround = false;
+  const ladder = climbLadders.find((candidate) =>
+    player.x + player.width > candidate.x &&
+    player.x < candidate.x + candidate.width &&
+    player.y < candidate.bottom &&
+    previousBottom > candidate.top
+  );
 
-  if (player.vy >= 0) {
-    for (const platform of climbPlatforms) {
-      const bottom = player.y + player.height;
-      if (
-        previousBottom <= platform.y &&
-        bottom >= platform.y &&
-        player.x + player.width > platform.x &&
-        player.x < platform.x + platform.width
-      ) {
-        player.y = platform.y - player.height;
-        player.vy = 0;
-        player.onGround = true;
-        break;
+  if (climbKeys.up && ladder) {
+    player.y -= 150 * delta;
+    player.vy = 0;
+    player.onGround = false;
+    if (player.y + player.height <= ladder.top) {
+      player.y = ladder.top - player.height;
+      player.vy = 0;
+      player.onGround = true;
+      climbKeys.up = false;
+    }
+  } else {
+    player.vy += 1250 * delta;
+    player.y += player.vy * delta;
+    player.onGround = false;
+
+    if (player.vy >= 0) {
+      for (const platform of climbPlatforms) {
+        const bottom = player.y + player.height;
+        if (
+          previousBottom <= platform.y &&
+          bottom >= platform.y &&
+          player.x + player.width > platform.x &&
+          player.x < platform.x + platform.width
+        ) {
+          player.y = platform.y - player.height;
+          player.vy = 0;
+          player.onGround = true;
+          break;
+        }
       }
     }
   }
@@ -321,6 +342,7 @@ function updateClimbGame(delta) {
       vy: -190,
       platformIndex: 4,
       onGround: false,
+      ladderDrop: false,
     });
     climbBarrelTimer = 1.8;
   }
@@ -328,22 +350,52 @@ function updateClimbGame(delta) {
   climbBarrels = climbBarrels.filter((barrel) => {
     const radius = 13;
     const previousBottom = barrel.y + radius;
+    const previousX = barrel.x;
     barrel.x += barrel.vx * delta;
 
     if (barrel.onGround) {
       const platform = climbPlatforms[barrel.platformIndex];
-      const beyondEdge = barrel.vx < 0
-        ? barrel.x + radius < platform.x
-        : barrel.x - radius > platform.x + platform.width;
-      if (beyondEdge) {
-        if (barrel.platformIndex === 0) {
+      const ladder = climbLadders.find((candidate) => {
+        if (candidate.bottomPlatformIndex + 1 !== barrel.platformIndex) {
           return false;
         }
+        const ladderCenter = candidate.x + candidate.width / 2;
+        return barrel.vx < 0
+          ? previousX > ladderCenter && barrel.x <= ladderCenter
+          : previousX < ladderCenter && barrel.x >= ladderCenter;
+      });
+      if (ladder && Math.random() < 0.01) {
         barrel.onGround = false;
-        barrel.platformIndex -= 1;
-        barrel.vy = 0;
+        barrel.ladderDrop = true;
+        barrel.vx = 0;
       }
-    } else {
+
+      if (!barrel.ladderDrop) {
+        const beyondEdge = barrel.vx < 0
+          ? barrel.x + radius < platform.x
+          : barrel.x - radius > platform.x + platform.width;
+        if (beyondEdge) {
+          if (barrel.platformIndex === 0) {
+            return false;
+          }
+          barrel.onGround = false;
+          barrel.platformIndex -= 1;
+          barrel.vy = 0;
+        }
+      }
+    }
+
+    if (barrel.ladderDrop) {
+      const lowerPlatform = climbPlatforms[barrel.platformIndex - 1];
+      barrel.y += 120 * delta;
+      if (barrel.y + radius >= lowerPlatform.y) {
+        barrel.y = lowerPlatform.y - radius;
+        barrel.platformIndex -= 1;
+        barrel.ladderDrop = false;
+        barrel.onGround = true;
+        barrel.vx = (barrel.platformIndex % 2 === 0 ? -1 : 1) * 145;
+      }
+    } else if (!barrel.onGround) {
       barrel.vy += 900 * delta;
       barrel.y += barrel.vy * delta;
       const platform = climbPlatforms[barrel.platformIndex];
@@ -373,7 +425,6 @@ function updateClimbGame(delta) {
       player.vx = 0;
       player.vy = 0;
       player.onGround = false;
-      climbJumpRequested = false;
       if (climbLives === 0) {
         finishClimbGame(false);
       } else {
@@ -420,6 +471,24 @@ function drawClimbGame() {
     ctx.fillStyle = "#6b442b";
     for (let x = platform.x + 12; x < platform.x + platform.width; x += 38) {
       ctx.fillRect(x, platform.y + 6, 18, 2);
+    }
+  }
+
+  for (const ladder of climbLadders) {
+    ctx.strokeStyle = "#92400e";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(ladder.x, ladder.top);
+    ctx.lineTo(ladder.x, ladder.bottom);
+    ctx.moveTo(ladder.x + ladder.width, ladder.top);
+    ctx.lineTo(ladder.x + ladder.width, ladder.bottom);
+    ctx.stroke();
+    ctx.lineWidth = 3;
+    for (let y = ladder.top + 10; y < ladder.bottom; y += 14) {
+      ctx.beginPath();
+      ctx.moveTo(ladder.x, y);
+      ctx.lineTo(ladder.x + ladder.width, y);
+      ctx.stroke();
     }
   }
 
@@ -837,11 +906,43 @@ pacmanButton.addEventListener("click", () => showGame("pacman"));
 backButton.addEventListener("click", returnToMenu);
 climbRestartButton.addEventListener("click", startClimbGame);
 pacmanRestartButton.addEventListener("click", startPacmanGame);
+emailForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const submitButton = emailForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  emailStatus.textContent = "Sending…";
+
+  try {
+    const response = await fetch("https://formsubmit.co/ajax/max4theboysyt@gmail.com", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Arcade visitor",
+        email: emailInput.value.trim(),
+        message: feedbackInput.value.trim(),
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || `Email service returned ${response.status}.`);
+    }
+
+    emailStatus.textContent = "Your request was sent. We’ll reply to the email address you provided.";
+    emailForm.reset();
+  } catch (error) {
+    emailStatus.textContent = error instanceof Error
+      ? `We couldn’t send your request: ${error.message}`
+      : "We couldn’t send your request. Please try again.";
+  } finally {
+    submitButton.disabled = false;
+  }
+});
 
 function setClimbControl(control, pressed) {
-  if (control === "jump" && pressed && !climbKeys.jump) {
-    climbJumpRequested = true;
-  }
   climbKeys[control] = pressed;
 }
 
@@ -867,9 +968,8 @@ document.addEventListener("keydown", (event) => {
     a: "left",
     arrowright: "right",
     d: "right",
-    arrowup: "jump",
-    w: "jump",
-    " ": "jump",
+    arrowup: "up",
+    w: "up",
   };
   const control = keys[event.key.toLowerCase()];
   if (control) {
@@ -884,9 +984,8 @@ document.addEventListener("keyup", (event) => {
     a: "left",
     arrowright: "right",
     d: "right",
-    arrowup: "jump",
-    w: "jump",
-    " ": "jump",
+    arrowup: "up",
+    w: "up",
   };
   const control = keys[event.key.toLowerCase()];
   if (control) {
@@ -897,8 +996,7 @@ document.addEventListener("keyup", (event) => {
 window.addEventListener("blur", () => {
   climbKeys.left = false;
   climbKeys.right = false;
-  climbKeys.jump = false;
-  climbJumpRequested = false;
+  climbKeys.up = false;
 });
 
 document.addEventListener("keydown", (event) => {
