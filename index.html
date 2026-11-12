@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arcade</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Arcade</h1>
+      <figure class="mascot">
+        <svg
+          class="mascot-art"
+          viewBox="0 0 160 160"
+          role="img"
+          aria-labelledby="mascotTitle"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <title id="mascotTitle">A friendly purple gorilla mascot</title>
+          <circle cx="80" cy="80" r="76" fill="#f1f5f9" />
+          <path
+            d="M37 139c2-20 17-34 43-34s41 14 43 34c-12 10-27 15-43 15s-31-5-43-15Z"
+            fill="#584268"
+          />
+          <path d="M37 53c0-22 19-38 43-38s43 16 43 38v35c0 25-18 43-43 43S37 113 37 88V53Z" fill="#584268" />
+          <circle cx="38" cy="75" r="15" fill="#584268" />
+          <circle cx="122" cy="75" r="15" fill="#584268" />
+          <circle cx="39" cy="76" r="7" fill="#bba9c9" />
+          <circle cx="121" cy="76" r="7" fill="#bba9c9" />
+          <path d="M53 62c0-14 12-24 27-24s27 10 27 24v27c0 20-11 34-27 34S53 109 53 89V62Z" fill="#d8cddf" />
+          <path d="M62 66c4-3 9-3 13 0" fill="none" stroke="#382944" stroke-linecap="round" stroke-width="4" />
+          <path d="M85 66c4-3 9-3 13 0" fill="none" stroke="#382944" stroke-linecap="round" stroke-width="4" />
+          <ellipse cx="69" cy="76" rx="3" ry="4" fill="#241c2a" />
+          <ellipse cx="91" cy="76" rx="3" ry="4" fill="#241c2a" />
+          <ellipse cx="80" cy="91" rx="19" ry="14" fill="#f5edf6" />
+          <path d="M73 94c4 4 10 4 14 0" fill="none" stroke="#584268" stroke-linecap="round" stroke-width="3" />
+        </svg>
+        <figcaption>Mighty Jo, your friendly arcade buddy</figcaption>
+      </figure>
+      <section id="menu" aria-label="Choose a game">
+        <p>Choose a game to play.</p>
+        <div class="game-buttons">
+          <button id="snakeButton" type="button">Snake</button>
+          <button id="minesweeperButton" type="button">Mine Sweeper</button>
+          <button id="climbButton" type="button">Mighty Jo's Barrel Climb</button>
+          <button id="pacmanButton" type="button">Pacman</button>
+        </div>
+      </section>
+      <button id="backButton" type="button" hidden>Back</button>
+      <p id="message" aria-live="polite">Select a game to play.</p>
+      <section id="snakeGame" aria-label="Snake game" hidden>
+        <p>Eat the food and avoid running into yourself.</p>
+        <p id="score">Score: 0</p>
+        <canvas id="board" width="320" height="320" aria-label="Snake game board"></canvas>
+      </section>
+      <section id="minesweeperGame" aria-label="Mine Sweeper game" hidden>
+        <p id="mineStatus" aria-live="polite">Find all the safe squares. Right-click to flag a mine.</p>
+        <div id="mineBoard" aria-label="Mine Sweeper board"></div>
+      </section>
+      <section id="climbGame" aria-label="Mighty Jo's Barrel Climb game" hidden>
+        <p>Climb the platforms, dodge the barrels Mighty Jo throws, and reach the star.</p>
+        <p id="climbStatus" aria-live="polite">Move with the arrow keys or WASD. Press Space or Up to jump.</p>
+        <canvas
+          id="climbBoard"
+          width="400"
+          height="360"
+          aria-label="A red stick figure climbing platforms while Mighty Jo throws barrels"
+        ></canvas>
+        <div class="climb-controls" aria-label="Touch controls">
+          <button type="button" data-climb-control="left" aria-label="Move left">←</button>
+          <button type="button" data-climb-control="jump" aria-label="Jump">Jump</button>
+          <button type="button" data-climb-control="right" aria-label="Move right">→</button>
+        </div>
+        <button id="climbRestartButton" type="button" hidden>Play again</button>
+      </section>
+      <section id="pacmanGame" aria-label="Pacman game" hidden>
+        <p>Eat every pellet and avoid the ghosts.</p>
+        <p id="pacmanStatus" aria-live="polite">Use the arrow keys or WASD to move.</p>
+        <canvas id="pacmanBoard" width="320" height="320" aria-label="Pacman board"></canvas>
+        <button id="pacmanRestartButton" type="button" hidden>Play again</button>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

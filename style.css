@@ -1,0 +1,171 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #f5f7ff, #dfeaff);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  box-sizing: border-box;
+  width: calc(100% - 2rem);
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+}
+
+h1 {
+  color: #1d4ed8;
+}
+
+.mascot {
+  margin: 0 auto 1.5rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.mascot-art {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 0.5rem;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.4rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.game-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+#backButton {
+  margin-bottom: 0.5rem;
+  background: #475569;
+}
+
+#backButton:hover {
+  background: #334155;
+}
+
+#message {
+  margin-top: 1rem;
+  color: #334155;
+}
+
+#snakeGame[hidden],
+#minesweeperGame[hidden],
+#climbGame[hidden],
+#pacmanGame[hidden],
+#menu[hidden],
+#backButton[hidden],
+#climbRestartButton[hidden],
+#pacmanRestartButton[hidden] {
+  display: none;
+}
+
+#score {
+  color: #334155;
+  font-weight: bold;
+}
+
+#board {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  margin: 0 auto;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+#pacmanBoard {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  margin: 0 auto 1rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: #0f172a;
+}
+
+#mineBoard {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 4px;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+#climbBoard {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  margin: 0 auto 1rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  touch-action: none;
+}
+
+.climb-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.climb-controls button {
+  min-width: 3rem;
+  padding: 0.6rem 0.9rem;
+  touch-action: none;
+}
+
+.mine-cell {
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.mine-cell:hover {
+  background: #1d4ed8;
+}
+
+.mine-cell.revealed,
+.mine-cell.revealed:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  cursor: default;
+}
+
+.mine-cell.flagged {
+  background: #f59e0b;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+}
